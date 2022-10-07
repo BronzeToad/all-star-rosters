@@ -1,1 +1,1 @@
-# all-star-mean-girls
+# Dyersville Baseball Project
