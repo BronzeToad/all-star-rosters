@@ -1,5 +1,6 @@
-from dotenv import dotenv_values
 from typing import Union
+
+from dotenv import dotenv_values
 
 
 def get_api_key_sportradar() -> Union[str, None]:
