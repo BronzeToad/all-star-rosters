@@ -1,6 +1,6 @@
-import requests
 import os
-    
+import requests
+
 
 def download_from_url(url: str, folder: str = None, filename: str = None):
     if folder is None:
