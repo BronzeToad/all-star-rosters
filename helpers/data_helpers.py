@@ -4,8 +4,8 @@ import requests
 
 def download_from_url(url: str, folder: str = None, filename: str = None):
     if folder is None:
-        folder = 'data/downloads'
-    print(f'folder: {folder}')
+        folder = 'data'
+    print(f'\nfolder: {folder}')
     
     if filename is None:
         filename = url.split('/')[-1]
