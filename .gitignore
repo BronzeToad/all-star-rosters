@@ -1,3 +1,6 @@
+################################################################################
+## Template .gitignore for python projects
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -131,3 +134,12 @@ dmypy.json
 # Other stuff
 *.DS_Store
 _junk/
+
+################################################################################
+## Dyersville .gitignore
+
+_archive/
+_scratch/
+
+.DS_Store
+*.code-workspace
