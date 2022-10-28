@@ -3,8 +3,7 @@ from typing import Union
 from dotenv import dotenv_values
 
 
-def get_api_key_sportradar() -> Union[str, None]:
-    key = 'API_KEY_SPORTRADAR'
+def get_api_key_sportradar(key: str) -> Union[str, None]:
     config = dotenv_values('.env')
     try:
         val = config[key]
