@@ -1,0 +1,38 @@
+{
+    "dataType": {
+        "contrib": [
+            "AwardsManagers",
+            "AwardsPlayers",
+            "AwardsShareManagers",
+            "AwardsSharePlayers",
+            "CollegePlaying",
+            "HallOfFame",
+            "Salaries",
+            "Schools"
+        ],
+        "core": [
+            "AllstarFull",
+            "Appearances",
+            "Batting",
+            "BattingPost",
+            "Fielding",
+            "FieldingOF",
+            "FieldingOFsplit",
+            "FieldingPost",
+            "HomeGames",
+            "Managers",
+            "ManagersHalf",
+            "Parks",
+            "People",
+            "Pitching",
+            "PitchingPost",
+            "SeriesPost",
+            "Teams",
+            "TeamsFranchises",
+            "TeamsHalf"
+        ],
+        "upstream": [
+            "Teams"
+        ]
+    }
+}
