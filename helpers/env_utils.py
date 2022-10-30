@@ -1,9 +1,8 @@
 from typing import Union
-
 from dotenv import dotenv_values
 
 
-def get_api_key_sportradar(key: str) -> Union[str, None]:
+def get_env_variable(key: str) -> Union[str, None]:
     config = dotenv_values('.env')
     try:
         val = config[key]
@@ -15,6 +14,4 @@ def get_api_key_sportradar(key: str) -> Union[str, None]:
 
 
 if __name__ == '__main__':
-    print('Executing as standalone script')
-
-    print(get_api_key_sportradar())
+    print('\n\n------------------------------------------------')
