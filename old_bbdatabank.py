@@ -1,7 +1,5 @@
-from lib2to3.pytree import Base
-from turtle import up
-from AllStar_MeanGirls.helpers import data_helpers as DataHelper
-    
+import helpers.data_helpers as DataHelper
+
 
 class BaseballDataBank:
     BASE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/'

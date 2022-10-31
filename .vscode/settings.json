@@ -1,0 +1,9 @@
+{
+    "python.envFile": "${workspaceFolder}/.env",
+    "terminal.integrated.env.osx": {
+        "PYTHONPATH": "${workspaceFolder}"
+    },
+    "python.linting.pylintArgs": [
+        "--disable=F0401"
+    ]
+}
