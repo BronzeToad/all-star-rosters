@@ -23,11 +23,11 @@ class Downloader:
     @location.setter
     def location(self, val):
         if val is None:
-            val = 'data/downloads'
-            print(f'No download location specified. Defaulting to ~/{val}...')
+            self._location = 'data/downloads'
+            print('No download location specified. Defaulting to ~/data/downloads...')
         else:
-            print(f'Download location: {val}')
-        self._location = val
+            self._location = val
+            print(f'Download location: {self._location}')
 
     @property
     def filename(self):
