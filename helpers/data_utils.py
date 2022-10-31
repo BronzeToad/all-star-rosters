@@ -4,6 +4,7 @@ import os
 
 def get_json(path: str, filename: str, print_flag: bool = False) -> dict:
 
+
     filepath = f'{os.path.join(path, filename)}.json'
 
     try:
@@ -21,3 +22,5 @@ def get_json_data(): pass
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
+
+    print(os.path.abspath('.'))

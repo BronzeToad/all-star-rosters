@@ -1,92 +1,56 @@
+import os
+
 import helpers.data_utils as DataHelper
 from models.data_extracts import Downloader
 
+ROOT_DIR = os.getenv("ROOT_DIR")
 
 class BaseballDataBank(Downloader):
-    BASE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/'
+    BASE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master'
     
-    def __init__(self, url, location,
-
-                 contrib_files: list = None,
-                 core_files: list = None,
-                 upstream_files: list = None):
-        
-        Downloader.__init__(url, location)
-        
-        self.contrib_files = contrib_files
-        self.core_files = core_files
-        self.upstream_files = upstream_files
-    
-    
+    def __init__(self, url: str, location: str = None):
+        super().__init__(url, location)
+  
+    @property
+    def config(self):
+        return DataHelper.get_json(f'{ROOT_DIR}/configs', 'mlb_data_bank')
+  
     @property
     def contrib_files(self):
-        return self._contrib_files
+        return self.config['dataType']['contrib']
     
-    @contrib_files.setter
-    def contrib_files(self):
-        self._contrib_files = []
-        print(f'contrib_files: {self._contrib_files}')
-
-
     @property
     def core_files(self):
-        return self._core_files
+        return self.config['dataType']['core']
     
-    @core_files.setter
-    def core_files(self, val):
-        self._core_files = val
-        print(f'core_files: {self._core_files}')
-        
-        
     @property
     def upstream_files(self):
-        return self._upstream_files
-    
-    @upstream_files.setter
-    def upstream_files(self, val):
-        self._upstream_files = val
-        print(f'upstream_files: {self._upstream_files}')
+        return self.config['dataType']['upstream']
 
-                 data_type: str = None):
-        
-        super().__init__(download_url, location, filename, filetype, filepath)
-        
-        self.data_type = data_type
-    
-    
-    @property
-    def data_type(self):
-        return self._data_type
-    
-    @data_type.setter
-    def data_type(self, val):
-        self._data_type = val
-        print(f'data_type: {self._data_type}')
-
- 
     @property
     def url_list(self):
-        return self._url_list
+        _url_list = []
+        [_url_list.append(f'{self.BASE_URL}/contrib/{f}.csv') for f in self.contrib_files]
+        [_url_list.append(f'{self.BASE_URL}/core/{f}.csv') for f in self.core_files]
+        [_url_list.append(f'{self.BASE_URL}/upstream/{f}.csv') for f in self.upstream_files]
+        return _url_list
     
-    @url_list.setter
-    def url_list(self, val):
-        self._url_list = val
-        print(f'url_list: {self._url_list}')
-        
+    '''     FIXME
+    def get_data(self):
+        if len(self.url_list) == 0:
+            self.get_urls()
+        for url in self.url_list:
+            DataHelper.download_from_url(url=url, folder='data/baseball_databank')
+    '''
         
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
     
 
-    def print_sys_paths():
-        import sys
-        for p in sys.path:
-            print(p)
-            
-    
-    print_sys_paths()
+    tst = BaseballDataBank(url='https://rickastley.com/summerjamz.zip')
 
 
-    
+    for url in tst.url_list:
+        print(url)
     
 

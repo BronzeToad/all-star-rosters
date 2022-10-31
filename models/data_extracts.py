@@ -52,7 +52,4 @@ class Downloader:
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
 
-    url = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/core/AllstarFull.csv'
-    tst = DataDownloader(url)
-    
-
+    tst = Downloader(url='https://rickastley.com/summerjamz.zip', location='never/gonna/give/you/up')
