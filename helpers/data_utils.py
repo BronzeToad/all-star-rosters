@@ -1,3 +1,4 @@
+
 import json
 import os
 
@@ -14,6 +15,8 @@ def get_json(path: str, filename: str, print_flag: bool = False) -> dict:
         raise FileNotFoundError(f'{filepath} does not exist...')
     
     return data
+
+def get_json_data(): pass
 
 
 if __name__ == '__main__':

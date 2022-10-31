@@ -89,7 +89,7 @@ class DataExtractor:
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
-    
+
     url = 'https://raw.githubusercontent.com/BronzeToad/baseballdatabank/master/core/AllstarFull.csv'
     tst = DataExtractor(download_url=url)
     
