@@ -11,13 +11,13 @@ def get_json(path: str, filename: str, print_flag: bool = False) -> dict:
         with open(filepath, 'r') as file:
             data = json.load(file)
         if print_flag:
-            print(f'Getting json content from {filepath}...')
+            print(f'Loading json content from {filepath}...')
     except FileNotFoundError:
         raise FileNotFoundError(f'{filepath} does not exist...')
     
+    if len(data) < 1:
+        raise ValueError(f'No data loaded. {filename}.json is empty...')
     return data
-
-def get_json_data(): pass
 
 
 if __name__ == '__main__':
