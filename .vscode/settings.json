@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "/Users/ajp/Documents/projects/dyersville/all-star-mean-girls/.venv/bin/python",
+    "terminal.integrated.env.osx": {"PYTHONPATH": "${workspaceFolder}"}
+}
