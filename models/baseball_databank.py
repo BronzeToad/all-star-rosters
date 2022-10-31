@@ -1,22 +1,17 @@
-
 import helpers.data_utils as DataHelper
-from models.data_extractor import DataExtractor
+from models.data_extracts import Downloader
 
 
-
-from models.data_extractor import DataExtractor
-
-
-class BaseballDataBank(DataExtractor):
+class BaseballDataBank(Downloader):
     BASE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/'
     
-    def __init__(self, download_url, location, filename, filetype, filepath,
+    def __init__(self, url, location,
 
                  contrib_files: list = None,
                  core_files: list = None,
                  upstream_files: list = None):
         
-        super().__init__(download_url, location, filename, filetype, filepath)
+        Downloader.__init__(url, location)
         
         self.contrib_files = contrib_files
         self.core_files = core_files
