@@ -135,7 +135,7 @@ dmypy.json
 _junk/
 
 ################################################################################
-## Dyersville .gitignore
+## dyersville .gitignore
 
 _archive/
 _scratch/
