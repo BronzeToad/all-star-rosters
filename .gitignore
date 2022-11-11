@@ -137,5 +137,4 @@ _junk/
 ################################################################################
 ## dyersville .gitignore
 
-_archive/
-_scratch/
+data/baseball_databank/downloads*
