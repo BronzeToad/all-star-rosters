@@ -5,7 +5,7 @@
 		}
 	],
 	"settings": {
-		"terminal.integrated.env.osx" : {
+		"terminal.integrated.env.osx": {
 			"PYTHONPATH": "${workspaceFolder}"
 		}
 	}

@@ -14,7 +14,6 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
@@ -136,7 +135,6 @@ dmypy.json
 _junk/
 
 ################################################################################
-## Dyersville .gitignore
+## dyersville .gitignore
 
-_archive/
-_scratch/
+data/baseball_databank/downloads*
