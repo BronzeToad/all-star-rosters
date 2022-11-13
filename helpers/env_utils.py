@@ -21,6 +21,16 @@ def get_root_dir(env_file: str = None) -> str:
     return env_vars['WORKSPACE_DIR']
 
 
+def get_gcp_project(env_file: str = None) -> str:
+    env_vars = get_env_vars(env_file)
+    return env_vars['GCP_PROJECT']
+
+
+def get_gcp_bucket(env_file: str = None) -> str:
+    env_vars = get_env_vars(env_file)
+    return env_vars['GCP_BUCKET']
+
+
 def get_env_var(key: str, env_file: str = None) -> str:
     env_vars = get_env_vars(env_file)
     if key not in env_vars:

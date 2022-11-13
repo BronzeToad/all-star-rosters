@@ -3,6 +3,16 @@ import requests
 import os.path as osPath
 from pathlib import Path as libPath
 
+
+def force_extension(filename: str, extension: str) -> str:
+    _ext = libPath(filename).suffix
+    if _ext == '':
+        filename = f'{filename}.{extension}'
+    elif _ext != extension:
+        raise ValueError(f'Invalid filename extension {_ext}. Expected {extension}.')
+    return filename
+
+
 def get_json(folder: str, filename: str) -> dict:
     """Gets json file and loads contents into a dictionary object.
     Parameters
@@ -25,22 +35,17 @@ def get_json(folder: str, filename: str) -> dict:
         If contents of json file are empty.
     """
     
-    _ext = libPath(filename).suffix
-    if _ext == '':
-        filename = f'{filename}.json'
-    elif _ext != '.json':
-        raise ValueError(f'Invalid file extension: {_ext}. The get_json() function only works with json files...')
-
-    _filepath = f'{osPath.join(folder, filename)}'
+    _filename = force_extension(filename, 'json')
+    _filepath = f'{osPath.join(folder, _filename)}'
 
     if libPath(_filepath).is_file():
         with open(_filepath, 'r') as file:
             _data = json.load(file)
     else:
-        raise FileNotFoundError(f'{_filepath} does not exist...')
+        raise FileNotFoundError(f'File {_filename} not found in {folder}.')
     
     if len(_data) < 1:
-        raise ValueError(f'No data loaded. {filename} is empty...')
+        raise ValueError(f'No data loaded. {_filename} is empty...')
     
     return _data
 
