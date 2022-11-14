@@ -44,18 +44,18 @@ class DataLoadCSV:
 # ============================================================================ #
 
     @property
-    def configs(self) -> dict:
+    def config(self) -> dict:
         _configs = DataHelper.get_json(folder=osPath.join(self.ROOT_DIR, 'configs'), 
                                        filename='gcp_storage_configs')
         return _configs[self.data_source]
 
     @property
     def source_dir(self) -> str:
-        return self.configs['sourceDirectory']
+        return self.config['sourceDirectory']
 
     @property
     def gcp_dir(self) -> str:
-        return self.configs['gcpDirectory']
+        return self.config['gcpDirectory']
     
     @property
     def source_path(self) -> str:

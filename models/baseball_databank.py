@@ -1,110 +1,109 @@
 import os.path as osPath
+
 import helpers.env_utils as EnvHelper
 import helpers.data_utils as DataHelper
-
-import icecream as ic
 
 # ============================================================================ #
 
 class BaseballDataBank:
 
-    BASE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master'
+    SOURCE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master'
     ROOT_DIR = EnvHelper.get_root_dir()
-    CONFIG_DIR = osPath.join(ROOT_DIR, 'configs')
-    SAVE_DIR = osPath.join(ROOT_DIR, 'data/baseball_databank/downloads')
-    FILENAME_DICT = DataHelper.get_json(CONFIG_DIR, 'baseball_databank')
+    SAVE_DIR = osPath.join(ROOT_DIR, 'data', 'baseball_databank', 'downloads')
+
     
-    def __init__(self, **kwargs):
+    def __init__(self, 
+                 get_contrib: bool = True, 
+                 get_core: bool = True,
+                 get_upstream: bool = True):
         
-        params = {
-            'contrib_files': None,
-            'core_files': None,
-            'upstream_files': None,
-        }
-        
-        params.update(kwargs)
-        
-        self.contrib_files = params['contrib_files']
-        self.core_files = params['core_files']
-        self.upstream_files = params['upstream_files']
+        self.get_contrib = get_contrib
+        self.get_core = get_core
+        self.get_upstream = get_upstream
 
   # ============================================================================ #       
   
     @property
-    def contrib_files(self) -> list:
-        return self._contrib_files
+    def get_contrib(self) -> bool:
+        return self._get_contrib
     
-    @contrib_files.setter
-    def contrib_files(self, val) -> None:
-        if val is None:
-            val = self.FILENAME_DICT['fileType']['contrib']      
-        self._contrib_files = val
+    @get_contrib.setter
+    def get_contrib(self, val) -> None:  
+        self._get_contrib = val
 
 
     @property
-    def core_files(self) -> list:
-        return self._core_files
+    def get_core(self) -> bool:
+        return self._get_core
     
-    @core_files.setter
-    def core_files(self, val) -> None:
-        if val is None:
-            val = self.FILENAME_DICT['fileType']['core']      
-        self._core_files = val
+    @get_core.setter
+    def get_core(self, val) -> None:  
+        self._get_core = val
         
-        
+
     @property
-    def upstream_files(self) -> list:
-        return self._upstream_files
+    def get_upstream(self) -> bool:
+        return self._get_upstream
     
-    @upstream_files.setter
-    def upstream_files(self, val) -> None:
-        if val is None:
-            val = self.FILENAME_DICT['fileType']['upstream']      
-        self._upstream_files = val
+    @get_upstream.setter
+    def get_upstream(self, val) -> None:  
+        self._get_upstream = val
 
   # ============================================================================ #
   
     @property
+    def config(self) -> dict:
+        _configs = DataHelper.get_json(folder=osPath.join(self.ROOT_DIR, 'configs'),
+                                       filename = 'baseball_databank')
+        return _configs['fileType']
+    
+    @property
+    def contrib_files(self) -> list:
+        return self.config['contrib']
+    
+    @property
+    def core_files(self) -> list:
+        return self.config['core']
+    
+    @property
+    def upstream_files(self) -> list:
+        return self.config['upstream']
+    
+    @property
     def contrib_urls(self) -> list:
-        return [f'{self.BASE_URL}/contrib/{f}.csv' for f in self.contrib_files]
+        return [f'{self.SOURCE_URL}/contrib/{f}.csv' for f in self.contrib_files]
   
     @property
     def core_urls(self):
-        return [f'{self.BASE_URL}/core/{f}.csv' for f in self.core_files]
+        return [f'{self.SOURCE_URL}/core/{f}.csv' for f in self.core_files]
     
     @property
     def upstream_urls(self):
-        return [f'{self.BASE_URL}/upstream/{f}.csv' for f in self.upstream_files]
+        return [f'{self.SOURCE_URL}/upstream/{f}.csv' for f in self.upstream_files]
 
     @property
     def download_urls(self):
         _urls = []
-        for url in [self.contrib_urls, self.core_urls, self.upstream_urls]:
-            _urls.extend(url)
+        _urls.extend(self.contrib_files) if self.get_contrib else _urls
+        _urls.extend(self.core_files) if self.get_core else _urls
+        _urls.extend(self.upstream_files) if self.get_upstream else _urls
         return _urls
     
 # ============================================================================ #
 
     @classmethod
-    def download(cls, **kwargs) -> None:
-        _cls = cls(**kwargs)
+    def download(cls, 
+                 get_contrib: bool = True, 
+                 get_core: bool = True,
+                 get_upstream: bool = True) -> None:
         
-        _success = 0
-        for url in _cls.download_urls:
-            _get = DataHelper.download(url,
-                                       location=_cls.SAVE_DIR,
-                                       filename=DataHelper.get_filename_from_url(url))
-            
-            _success += 1 if _get else _success
-            
-        print(f'{_success} of {len(_cls.download_urls)} data files downloaded successfully to: {_cls.SAVE_DIR}')
+        met = cls(get_contrib, get_core, get_upstream)
         
-        
+        DataHelper.download_multiple(url_download_list=met.download_urls,
+                                     save_dir=met.SAVE_DIR)    
+    
 
 # ============================================================================ #
         
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
-
-    BaseballDataBank.download()
-    

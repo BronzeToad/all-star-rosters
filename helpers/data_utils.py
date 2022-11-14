@@ -5,11 +5,11 @@ from pathlib import Path as libPath
 
 
 def force_extension(filename: str, extension: str) -> str:
-    _ext = libPath(filename).suffix
-    if _ext == '':
+    ext = libPath(filename).suffix
+    if ext == '':
         filename = f'{filename}.{extension}'
-    elif _ext != extension:
-        raise ValueError(f'Invalid filename extension {_ext}. Expected {extension}.')
+    elif ext != extension:
+        raise ValueError(f'Invalid filename extension {ext}. Expected {extension}.')
     return filename
 
 
@@ -35,36 +35,69 @@ def get_json(folder: str, filename: str) -> dict:
         If contents of json file are empty.
     """
     
-    _filename = force_extension(filename, 'json')
-    _filepath = f'{osPath.join(folder, _filename)}'
+    filename = force_extension(filename, 'json')
+    filepath = f'{osPath.join(folder, filename)}'
 
-    if libPath(_filepath).is_file():
-        with open(_filepath, 'r') as file:
-            _data = json.load(file)
+    if libPath(filepath).is_file():
+        with open(filepath, 'r') as file:
+            data = json.load(file)
     else:
-        raise FileNotFoundError(f'File {_filename} not found in {folder}.')
+        raise FileNotFoundError(f'{filename} not found in {folder}.')
     
-    if len(_data) < 1:
-        raise ValueError(f'No data loaded. {_filename} is empty...')
+    if len(data) < 1:
+        raise ValueError(f'No data loaded. {filename} is empty...')
     
-    return _data
+    return data
 
 
 def get_filename_from_url(url: str) -> str:
-    _name = url.split('/')[-1]
-    return url.split('/')[-2] if _name == '' else _name
+    filename = url.split('/')[-1]
+    return url.split('/')[-2] if filename == '' else filename
 
 
-def download(url: str, location: str, filename: str) -> bool:
-    _filepath = osPath.join(location, filename)
-    _payload = requests.get(url)
+def download(url: str, save_dir: str, filename: str) -> None:
+    filepath = osPath.join(save_dir, filename)
+    payload = requests.get(url)
+    status_code = payload.response.status_code
     
-    with open(_filepath, 'wb') as file:
-        file.write(_payload.content)
+    if status_code != 200:
+        raise RuntimeError(f'Request failed with status code {status_code}...\n'
+                           f'Response text: {payload.response.text}')
+    
+    with open(filepath, 'wb') as file:
+        file.write(payload.content)
+    
+    if libPath(filepath).is_file():
+        print(f'{filename} downloaded to {save_dir}.')
+    else:
+        raise FileNotFoundError(f'{filepath} does not exist..')
 
-    return libPath(_filepath).is_file() 
 
+def download_multiple(url_download_list: list, save_dir: str) -> None:
+
+    for url in url_download_list:
+        filename = get_filename_from_url(url)
+        filepath = osPath.join(save_dir, filename)
+        payload = requests.get(url)
+        status_code = payload.response.status_code
+        
+        if status_code != 200:
+            print(f'Unable to download {filename} from {url}. Request failed with status code: {status_code}')
+            pass
+        else:
+            with open(filepath, 'wb') as file:
+                file.write(payload.content)
+
+        if libPath(filepath).is_file():
+            print(f'{filename} downloaded to {save_dir}.')
 
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
+
+
+    url = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/notReal.csv'
+    filename = 'notReal.csv'
+    save_dir = 'data'
+    
+    print(download(url, save_dir, filename))
