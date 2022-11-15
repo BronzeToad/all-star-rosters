@@ -77,23 +77,6 @@ class Downloader:
     def ignore_errors(self, val: bool) -> None:
         self._ignore_errors = val
 
-
-    @property
-    def payload(self):
-        return self._payload
-    
-    @payload.setter
-    def payload(self, val) -> None:
-        self._payload = val
-        
-    @property
-    def response(self):
-        return self._response
-    
-    @response.setter
-    def response(self, val) -> None:
-        self._response = val
-
 # ============================================================================ #
 
     @property
