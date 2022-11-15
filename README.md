@@ -8,6 +8,19 @@ if so, what performance metrics are predictive of roster selection?
 Hypothesis: There is no direct causal relationship between player performance and MLB All-Star Roster selection. 
 
 ---
+## .env variables
+
+WORKSPACE_DIR=_<full_path_to_workspace_directory>_
+
+PYTHONPATH=${WORKSPACE_DIR}
+
+GOOGLE_APPLICATION_CREDENTIALS=_<full_path_to_google_cloud--application_default_credentials.json>_
+
+GCP_PROJECT=_<google_cloud_platform--project_id>_
+
+GCP_BUCKET=dyersville-dev_<google_cloud_platform--storage-bucket>_
+
+---
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Hac habitasse platea dictumst vestibulum rhoncus. Orci nulla pellentesque dignissim enim sit amet venenatis urna. Odio tempor orci dapibus ultrices in iaculis nunc sed. Venenatis tellus in metus vulputate eu scelerisque felis imperdiet. Diam volutpat commodo sed egestas egestas fringilla phasellus faucibus scelerisque. Nibh praesent tristique magna sit amet purus gravida. Elit ullamcorper dignissim cras tincidunt. Mauris augue neque gravida in fermentum et sollicitudin. Viverra suspendisse potenti nullam ac tortor vitae purus. Ornare aenean euismod elementum nisi quis eleifend quam. Sed vulputate mi sit amet mauris commodo quis imperdiet massa. Purus faucibus ornare suspendisse sed nisi lacus sed viverra tellus. Cursus euismod quis viverra nibh cras pulvinar mattis nunc. Aenean et tortor at risus viverra adipiscing at in. Egestas sed sed risus pretium quam vulputate. Eu nisl nunc mi ipsum faucibus vitae aliquet.
 
