@@ -8,14 +8,14 @@ import helpers.env_utils as EnvHelper
 
 # ============================================================================ #
 
-class DataLoadCSV:
+class DataLoadCSV:      # FIXME: should this be able to load multiple files at once?
     
     ROOT_DIR = EnvHelper.get_root_dir()
     GCP_PROJECT = EnvHelper.get_gcp_project()
     GCP_BUCKET = EnvHelper.get_gcp_bucket()
     
     def __init__(self, 
-                 data_source: str, 
+                 data_source: str,
                  filename: str):
         
         self.data_source = data_source
@@ -29,6 +29,8 @@ class DataLoadCSV:
 
     @data_source.setter
     def data_source(self, val) -> None:
+        if val not in self.valid_data_sources:
+            raise ValueError(f'Invalid data source: {val}')
         self._data_source = val
         
     
@@ -44,18 +46,16 @@ class DataLoadCSV:
 # ============================================================================ #
 
     @property
-    def config(self) -> dict:
-        _configs = DataHelper.get_json(folder=osPath.join(self.ROOT_DIR, 'configs'), 
-                                       filename='gcp_storage_configs')
-        return _configs[self.data_source]
+    def valid_data_sources(self) -> dict:
+        return DataHelper.get_data_sources()
 
     @property
     def source_dir(self) -> str:
-        return self.config['sourceDirectory']
+        return osPath.join(self.ROOT_DIR, 'data', self.data_source)
 
     @property
     def gcp_dir(self) -> str:
-        return self.config['gcpDirectory']
+        return self.data_source
     
     @property
     def source_path(self) -> str:

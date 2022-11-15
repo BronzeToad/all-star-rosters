@@ -1,8 +1,12 @@
 import json
-import requests
 import os.path as osPath
+import requests
+
 from pathlib import Path as libPath
 
+import helpers.env_utils as EnvHelper
+
+ROOT_DIR = EnvHelper.get_root_dir()
 
 def force_extension(filename: str, extension: str) -> str:
     ext = libPath(filename).suffix
@@ -55,41 +59,13 @@ def get_filename_from_url(url: str) -> str:
     return url.split('/')[-2] if filename == '' else filename
 
 
-def download(url: str, save_dir: str, filename: str) -> None:
-    filepath = osPath.join(save_dir, filename)
-    payload = requests.get(url)
-    status_code = payload.response.status_code
-    
-    if status_code != 200:
-        raise RuntimeError(f'Request failed with status code {status_code}...\n'
-                           f'Response text: {payload.response.text}')
-    
-    with open(filepath, 'wb') as file:
-        file.write(payload.content)
-    
-    if libPath(filepath).is_file():
-        print(f'{filename} downloaded to {save_dir}.')
-    else:
-        raise FileNotFoundError(f'{filepath} does not exist..')
+def get_data_sources() -> list:
+    _config = get_json(folder=osPath.join(ROOT_DIR, 'configs'),
+                       filename='data_sources')
+    return _config['dataSources']
 
 
-def download_multiple(url_download_list: list, save_dir: str) -> None:
 
-    for url in url_download_list:
-        filename = get_filename_from_url(url)
-        filepath = osPath.join(save_dir, filename)
-        payload = requests.get(url)
-        status_code = payload.response.status_code
-        
-        if status_code != 200:
-            print(f'Unable to download {filename} from {url}. Request failed with status code: {status_code}')
-            pass
-        else:
-            with open(filepath, 'wb') as file:
-                file.write(payload.content)
-
-        if libPath(filepath).is_file():
-            print(f'{filename} downloaded to {save_dir}.')
 
 
 if __name__ == '__main__':

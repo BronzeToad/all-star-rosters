@@ -1,7 +1,0 @@
-{
-    "baseball_databank" : {
-        "sourceDirectory" : "data/baseball_databank/downloads",
-        "gcpDirectory" : "baseball_databank"
-    }
-
-}
