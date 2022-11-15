@@ -8,7 +8,7 @@ import helpers.env_utils as EnvHelper
 
 # ============================================================================ #
 
-class DataLoadCSV:      # FIXME: should this be able to load multiple files at once?
+class DataLoadCSV:
     
     ROOT_DIR = EnvHelper.get_root_dir()
     GCP_PROJECT = EnvHelper.get_gcp_project()
@@ -16,10 +16,12 @@ class DataLoadCSV:      # FIXME: should this be able to load multiple files at o
     
     def __init__(self, 
                  data_source: str,
-                 filename: str):
+                 filename: str,
+                 source_dir: str = None):
         
         self.data_source = data_source
         self.filename = filename
+        self.source_dir = source_dir
         
 # ============================================================================ #
 
@@ -43,6 +45,16 @@ class DataLoadCSV:      # FIXME: should this be able to load multiple files at o
         val = DataHelper.force_extension(val, 'csv')
         self._filename = val
         
+    @property
+    def source_dir(self) -> str:
+        return self._source_dir
+    
+    @source_dir.setter
+    def source_dir(self, val) -> None:
+        if val is None:
+            val = osPath.join('data', self.data_source)
+        self._source_dir = val
+        
 # ============================================================================ #
 
     @property
@@ -58,15 +70,17 @@ class DataLoadCSV:      # FIXME: should this be able to load multiple files at o
         return self.data_source
     
     @property
-    def source_path(self) -> str:
-        _path = osPath.join(self.source_dir, self.filename)
-        if libPath(_path).is_file():
-            return _path
-        else:
-            raise FileNotFoundError(f'File {self.filename} not found in {self.source_dir}')
-
+    def source_filepath(self) -> str:
+        _dir = osPath.join(self.ROOT_DIR, self.source_dir)
+        if not libPath(_dir).is_dir():
+            raise RuntimeError(f'Invalid source directory: {_dir}.')
+        _path = osPath.join(_dir, self.filename)
+        if not libPath(_path).is_file():
+            raise FileNotFoundError(f'{self.filename} not found in ~/{self.source_dir}')
+        return _path
+            
     @property
-    def gcp_path(self) -> str:
+    def gcp_fileLpath(self) -> str:
         return osPath.join(self.gcp_dir, self.filename)
 
 # ============================================================================ #

@@ -100,7 +100,7 @@ class Downloader:
     def save_filepath(self) -> str:
         _dir = osPath.join(self.ROOT_DIR, self.save_dir)
         if not libPath(_dir).is_dir():
-            raise RuntimeError(f'Invalid directory: {_dir}.')
+            raise RuntimeError(f'Invalid save directory: {_dir}.')
         return osPath.join(_dir, self.filename)
 
     @property
