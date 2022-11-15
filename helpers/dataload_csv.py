@@ -62,10 +62,6 @@ class DataLoadCSV:
         return DataHelper.get_data_sources()
 
     @property
-    def source_dir(self) -> str:
-        return osPath.join(self.ROOT_DIR, 'data', self.data_source)
-
-    @property
     def gcp_dir(self) -> str:
         return self.data_source
     
