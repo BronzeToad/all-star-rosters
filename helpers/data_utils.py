@@ -1,12 +1,18 @@
 import json
 import os.path as osPath
-import requests
 
+from datetime import datetime
+from dateutil.parser import parse as dateutilParse
 from pathlib import Path as libPath
+from string import capwords as strCapwords
 
 import helpers.env_utils as EnvHelper
 
+# ============================================================================ #
+
 ROOT_DIR = EnvHelper.get_root_dir()
+
+# ============================================================================ #
 
 def force_extension(filename: str, extension: str) -> str:
     ext = libPath(filename).suffix
@@ -17,28 +23,7 @@ def force_extension(filename: str, extension: str) -> str:
     return filename
 
 
-def get_json(folder: str, filename: str) -> dict:
-    """Gets json file and loads contents into a dictionary object.
-    Parameters
-    ----------
-    folder : str
-        Path to directory containing json file.
-    filename : str
-        Name of json file to be loaded.
-    Returns
-    -------
-    _data : dict
-        Contents of json file as a python dictionary object.
-    Raises
-    ------
-    ValueError
-        If filename extension is something other than null or 'json'.
-    FileNotFoundError
-        If json file can't be found.
-    ValueError
-        If contents of json file are empty.
-    """
-    
+def get_json(folder: str, filename: str) -> dict:   
     filename = force_extension(filename, 'json')
     filepath = f'{osPath.join(folder, filename)}'
 
@@ -65,15 +50,24 @@ def get_data_sources() -> list:
     return _config['dataSources']
 
 
+def get_epoch_timestamp(date_string: str = None, fuzzy: bool = False) -> str:
+    if date_string is None:
+        _val = datetime.now()
+    else:
+        _val = dateutilParse(date_string, fuzzy=True) if fuzzy else dateutilParse(date_string)
+        
+    return str(_val.strftime('%s'))
 
 
+def snek_to_camel(snek_string: str) -> str:
+    return strCapwords(snek_string.replace('_', ' ')).replace(' ', '')
+
+# ============================================================================ #
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
 
 
-    url = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/notReal.csv'
-    filename = 'notReal.csv'
-    save_dir = 'data'
+    test_date = 'Today'
     
-    print(download(url, save_dir, filename))
+    print(get_epoch_timestamp(test_date, fuzzy=True))
