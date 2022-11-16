@@ -1,6 +1,8 @@
 import google.cloud.bigquery as gcpBigQuery
 import os.path as osPath
 
+from string import capwords as strCapwords
+
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
 
@@ -192,20 +194,32 @@ class BigQueryLoader:
 # ============================================================================ #
 
     @property
-    def job_id_prefix(self) -> str:
-        pass    # TODO: use combo of data_source and table_id name
+    def filename(self) -> str:
+        return DataHelper.force_extension(self.table_id, 'csv')
 
+    @property
+    def gcp_dir(self) -> str:
+        return osPath.join(self.GCP_BUCKET, self.data_source)
     
+    @property
+    def gcp_filepath(self) -> str:
+        return osPath.join(self.gcp_dir, self.filename)
+    
+    @property
+    def job_id_prefix(self) -> str:
+        _source = DataHelper.snek_to_camel(self.data_source)
+        _table = DataHelper.snek_to_camel(self.table_id)
+        _timestamp = DataHelper.get_epoch_timestamp()        
+        return f'{_source}_{_table}_{_timestamp()}_'
+
     @property
     def destination(self) -> str:
         return f'{self.GCP_PROJECT}.{self.data_source}.{self.table_id}'
     
-    
     @property
     def schema(self) -> dict:
         return DataHelper.get_json(folder=osPath.join(self.SCHEMA_DIR, self.data_source),
-                                   filename=self.table_id)
-    
+                                   filename=self.filename)
     
     @property
     def job_config(self):
@@ -221,20 +235,18 @@ class BigQueryLoader:
                                              write_disposition=self.write_disposition,
                                              schema=self.schema)
     
-    
-    @property               # FIXME
+    @property
     def job_result(self):
-        _job = gcpBigQuery.Client().load_table_from_uri(source_uris=None,
-                                                        destination=None,
-                                                        job_id_prefix=None,
-                                                        job_config=None,
+        _job = gcpBigQuery.Client().load_table_from_uri(source_uris=self.gcp_filepath,
+                                                        destination=self.destination,
+                                                        job_id_prefix=self.job_id_prefix,
+                                                        job_config=self.job_config,
                                                         timeout=300.0)
         return _job.result()
     
     @property
     def job_details(self):
         return self.job_result.to_api_repr()
-    
     
     @property
     def job_id(self):
@@ -250,3 +262,4 @@ class BigQueryLoader:
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
+    
