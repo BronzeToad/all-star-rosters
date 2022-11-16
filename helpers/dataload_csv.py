@@ -63,7 +63,7 @@ class DataLoadCSV:
 
     @property
     def gcp_dir(self) -> str:
-        return self.data_source
+        return osPath.join(self.GCP_BUCKET, self.data_source)
     
     @property
     def source_filepath(self) -> str:
@@ -76,7 +76,7 @@ class DataLoadCSV:
         return _path
             
     @property
-    def gcp_fileLpath(self) -> str:
+    def gcp_filepath(self) -> str:
         return osPath.join(self.gcp_dir, self.filename)
 
 # ============================================================================ #
