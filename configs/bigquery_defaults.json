@@ -1,0 +1,16 @@
+{
+    "allow_jagged_rows": true,
+    "allow_quoted_newlines": true,
+    "autodetect": false,
+    "create_disposition": "CREATE_IF_NEEDED",
+    "field_delimiter": ",",
+    "ignore_unknown_values": true,
+    "labels": null,
+    "max_bad_records": 5,
+    "null_marker": null,
+    "quote_character": null,
+    "schema_file": null,
+    "skip_leading_rows": 1,
+    "source_format": null,
+    "write_disposition": "WRITE_TRUNCATE"
+}
