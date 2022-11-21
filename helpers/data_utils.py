@@ -1,5 +1,6 @@
 import json
 import os.path as osPath
+import pandas as pd
 
 from datetime import datetime
 from dateutil.parser import parse as dateutilParse
@@ -11,6 +12,7 @@ import helpers.env_utils as EnvHelper
 # ============================================================================ #
 
 ROOT_DIR = EnvHelper.get_root_dir()
+BREAK = '\n\n------------------------------------------------'
 
 # ============================================================================ #
 
@@ -18,7 +20,7 @@ def force_extension(filename: str, extension: str) -> str:
     ext = libPath(filename).suffix
     if ext == '':
         filename = f'{filename}.{extension}'
-    elif ext != extension:
+    elif extension not in ext and ext not in extension:
         raise ValueError(f'Invalid filename extension {ext}. Expected {extension}.')
     return filename
 
@@ -61,6 +63,21 @@ def get_epoch_timestamp(date_string: str = None, fuzzy: bool = False) -> str:
 
 def snek_to_camel(snek_string: str) -> str:
     return strCapwords(snek_string.replace('_', ' ')).replace(' ', '')
+
+
+def get_csv(filename: str, relative_path: str = 'data'):
+    _filename = force_extension(filename, extension='csv')
+    _path = osPath.join(relative_path, _filename)
+    _filepath = osPath.join(ROOT_DIR, _path)
+    _df = pd.read_csv(_filepath)
+    print(BREAK)
+    print(f'Filepath: {_path}\nDataframe shape: {_df.shape}\nData types...\n{_df.dtypes}')
+    return _df
+
+
+def tally(dataframe, column, export: bool = False):
+    _tally = dataframe.groupby(column).size().sort_values(ascending=False).reset_index(name='count')
+    _tally.to_csv('tally.csv', index=False) if export else print(f'{BREAK}\n{_tally}\n')
 
 # ============================================================================ #
 
