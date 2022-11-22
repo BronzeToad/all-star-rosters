@@ -195,6 +195,10 @@ class BigQueryLoader:
 
     @property
     def filename(self) -> str:
+        return self._filename
+    
+    @property
+    def filename(self) -> str:
         return DataHelper.force_extension(self.table_id, 'csv')
 
     @property
