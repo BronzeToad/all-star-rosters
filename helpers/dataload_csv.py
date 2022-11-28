@@ -6,6 +6,8 @@ from pathlib import Path as libPath
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
 
+from icecream import ic
+
 # ============================================================================ #
 
 class DataLoadCSV:
@@ -13,6 +15,9 @@ class DataLoadCSV:
     ROOT_DIR = EnvHelper.get_root_dir()
     GCP_PROJECT = EnvHelper.get_gcp_project()
     GCP_BUCKET = EnvHelper.get_gcp_bucket()
+    VALID_DATA_SOURCES = DataHelper.get_data_sources()
+
+# ============================================================================ #
     
     def __init__(self, 
                  data_source: str,
@@ -31,7 +36,7 @@ class DataLoadCSV:
 
     @data_source.setter
     def data_source(self, val) -> None:
-        if val not in self.valid_data_sources:
+        if val not in self.VALID_DATA_SOURCES:
             raise ValueError(f'Invalid data source: {val}')
         self._data_source = val
         
@@ -58,12 +63,12 @@ class DataLoadCSV:
 # ============================================================================ #
 
     @property
-    def valid_data_sources(self) -> dict:
-        return DataHelper.get_data_sources()
-
-    @property
     def gcp_dir(self) -> str:
         return osPath.join(self.GCP_BUCKET, self.data_source)
+    
+    @property
+    def gcp_filepath(self) -> str:
+        return osPath.join(self.gcp_dir, self.filename)
     
     @property
     def source_filepath(self) -> str:
@@ -75,10 +80,6 @@ class DataLoadCSV:
             raise FileNotFoundError(f'{self.filename} not found in ~/{self.source_dir}')
         return _path
             
-    @property
-    def gcp_filepath(self) -> str:
-        return osPath.join(self.gcp_dir, self.filename)
-
 # ============================================================================ #
 
     @classmethod
@@ -86,15 +87,30 @@ class DataLoadCSV:
              data_source: str, 
              filename: str) -> None:
         
-        met = cls(data_source, filename)
+        thing = cls(data_source, filename)
         
-        client = gcpStorage.Client(project=met.GCP_PROJECT)
-        bucket = client.get_bucket(met.GCP_BUCKET)
-        blob = bucket.blob(met.gcp_path)
-        blob.upload_from_filename(met.source_path)
-        print(f'File {met.filename} uploaded to {met.gcp_dir}.')
+        client = gcpStorage.Client(project=thing.GCP_PROJECT)
+        bucket = client.get_bucket(thing.GCP_BUCKET)
+        blob = bucket.blob(thing.gcp_path)
+        blob.upload_from_filename(thing.source_path)
+        print(f'File {thing.filename} uploaded to {thing.gcp_dir}.')
 
 # ============================================================================ #
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
+
+    data_source = 'baseball_databank'
+    filename = 'AwardsManagers'
+    tst = DataLoadCSV(data_source, filename)
+    
+    ic(tst.ROOT_DIR)
+    ic(tst.GCP_PROJECT)
+    ic(tst.GCP_BUCKET)
+    ic(tst.VALID_DATA_SOURCES)
+    ic(tst.data_source)
+    ic(tst.filename)
+    ic(tst.source_dir)
+    ic(tst.gcp_dir)
+    ic(tst.gcp_filepath)
+    ic(tst.source_filepath)    
