@@ -2,15 +2,21 @@ import os.path as osPath
 import requests
 
 from pathlib import Path as libPath
+from icecream import ic
 
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
+
+from icecream import ic
 
 # ============================================================================ #
 
 class Downloader:
     
     ROOT_DIR = EnvHelper.get_root_dir()
+    VALID_DATA_SOURCES = DataHelper.get_data_sources()
+    
+# ============================================================================ #
     
     def __init__(self,
                  data_source: str,
@@ -24,6 +30,9 @@ class Downloader:
         self.save_dir = save_dir
         self.filename = filename
         self.ignore_errors = ignore_errors
+        self.payload = None
+        self.payload_content = None
+        self.status_code = None
 
 # ============================================================================ #
 
@@ -33,7 +42,7 @@ class Downloader:
 
     @data_source.setter
     def data_source(self, val) -> None:
-        if val not in self.valid_data_sources:
+        if val not in self.VALID_DATA_SOURCES:
             raise ValueError(f'Invalid data source: {val}')
         self._data_source = val
         
@@ -86,24 +95,35 @@ class Downloader:
             raise RuntimeError(f'Invalid save directory: {_dir}.')
         return osPath.join(_dir, self.filename)
 
-    @property
-    def valid_data_sources(self) -> dict:
-        return DataHelper.get_data_sources()
 
     @property
     def payload(self) -> requests.Response:
-        return requests.get(self.url)
+        return self._payload
+        
+    @payload.setter
+    def payload(self, val) -> None:
+        val = requests.get(self.url)
+        self._payload = val
     
     @property
     def payload_content(self) -> bytes:
-        return self.payload.content
+        return self._payload_content
+        
+    @payload_content.setter
+    def payload_content(self, val) -> None:
+        val = self.payload.content
+        self._payload_content = val
     
     @property
     def status_code(self) -> int:
-        return self.payload.status_code
-
-
-# ============================================================================ #\
+        return self._status_code
+        
+    @status_code.setter
+    def status_code(self, val) -> None:
+        val = self.payload.status_code
+        self._status_code = val
+        
+# ============================================================================ #
 
     @classmethod
     def doot(cls,
@@ -113,26 +133,41 @@ class Downloader:
              filename: str = None,
              ignore_errors: bool = False) -> None:
     
-        met = cls(data_source, url, save_dir, filename, ignore_errors)
+        thing = cls(data_source, url, save_dir, filename, ignore_errors)
     
-        if met.status_code != 200:
-            if met.ignore_errors:
-                print(f'Unable to download {met.filename} from {met.url}.' 
-                      f'Request failed with status code: {met.status_code}')
+        if thing.status_code != 200:
+            if thing.ignore_errors:
+                print(f'Unable to download {thing.filename} from {thing.url}.' 
+                      f'Request failed with status code: {thing.status_code}')
             else:
-                raise RuntimeError(f'Request failed with status code {met.status_code}...\n'
-                                   f'Response text: {met.payload.text}.')
+                raise RuntimeError(f'Request failed with status code {thing.status_code}...\n'
+                                   f'Response text: {thing.payload.text}.')
         else:
-            with open(met.save_filepath, 'wb') as file:
-                file.write(met.payload_content)
+            with open(thing.save_filepath, 'wb') as file:
+                file.write(thing.payload_content)
         
-        if libPath(met.save_filepath).is_file():
-            print(f'{met.filename} downloaded to ~/{met.save_dir}.')
-        elif not met.ignore_errors:
-            raise FileNotFoundError(f'{met.save_filepath} does not exist..')
+        if libPath(thing.save_filepath).is_file():
+            print(f'{thing.filename} downloaded to ~/{thing.save_dir}.')
+        elif not thing.ignore_errors:
+            raise FileNotFoundError(f'{thing.save_filepath} does not exist..')
                 
-
 # ============================================================================ #
 
 if __name__ == '__main__':
     print('\n\n------------------------------------------------')
+
+    data_source = 'baseball_databank'
+    url = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/core/AllstarFull.csv'
+    tst = Downloader(data_source, url)
+    
+    # ic(tst.ROOT_DIR)
+    # ic(tst.VALID_DATA_SOURCES)
+    ic(tst.data_source)
+    ic(tst.url)
+    ic(tst.save_dir)
+    ic(tst.filename)
+    ic(tst.ignore_errors)
+    ic(tst.payload)
+    # ic(tst.payload_content)
+    # ic(tst.status_code)
+    

@@ -87,6 +87,7 @@ if __name__ == '__main__':
     print('\n\n------------------------------------------------')
 
     tst = BaseballDataBank()
+    
     ic(tst.DATA_SOURCE)
     # ic(tst.SOURCE_URL)
     # ic(tst.ROOT_DIR)
