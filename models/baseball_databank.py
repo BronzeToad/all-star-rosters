@@ -17,17 +17,13 @@ class BaseballDataBank:
     DATA_SOURCE = 'baseball_databank'
     SOURCE_URL = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master'
     ROOT_DIR = EnvHelper.get_root_dir()
-    
-# ============================================================================ #
-
-    config = DataHelper.get_json(folder=osPath.join(ROOT_DIR, 'configs'), 
+    CONFIG = DataHelper.get_json(folder=osPath.join(ROOT_DIR, 'configs'), 
                                  filename = 'baseball_databank')
     
-    valid_filenames = []
-    for _item in config:
+    VALID_FILENAMES = []
+    for _item in CONFIG:
         _name = _item['fileName']
-        valid_filenames.append(_name)
-    
+        VALID_FILENAMES.append(_name)
     
 # ============================================================================ #
     
@@ -41,12 +37,12 @@ class BaseballDataBank:
     @filenames.setter
     def filenames(self, val) -> None:
         if val is None:
-            val = self.valid_filenames
+            val = self.VALID_FILENAMES
         else:
             val = [val] if isinstance(val, str) else val
             _invalid_filenames = []
             for _name in val:
-                if _name not in self.valid_filenames:
+                if _name not in self.VALID_FILENAMES:
                     _invalid_filenames.append(_name)
                     val.remove(_name)
             if len(_invalid_filenames) > 0:
@@ -96,7 +92,7 @@ if __name__ == '__main__':
     ic(tst.DATA_SOURCE)
     # ic(tst.SOURCE_URL)
     # ic(tst.ROOT_DIR)
-    # ic(tst.config)
-    # ic(tst.valid_filenames)
+    # ic(tst.CONFIG)
+    # ic(tst.VALID_FILENAMES)
     ic(tst.filenames)
     ic(tst.urls)
