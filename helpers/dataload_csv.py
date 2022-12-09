@@ -113,4 +113,4 @@ if __name__ == '__main__':
     ic(tst.source_dir)
     ic(tst.gcp_dir)
     ic(tst.gcp_filepath)
-    ic(tst.source_filepath)    
+    ic(tst.source_filepath)
