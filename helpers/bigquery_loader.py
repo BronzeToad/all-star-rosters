@@ -6,6 +6,8 @@ from string import capwords as strCapwords
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
 
+from icecream import ic
+
 # ============================================================================ #
 
 class BigQueryLoader:
@@ -42,6 +44,17 @@ class BigQueryLoader:
         self.skip_leading_rows = default_params['skip_leading_rows']
         self.source_format = default_params['source_format']
         self.write_disposition = default_params['write_disposition']
+        
+        self.filename = None
+        self.gcp_dir = None
+        self.gcp_filepath = None
+        self.job_id_prefix = None
+        self.destination = None
+        self.schema = None
+        self.job_config = None
+        self.job_result = None
+        self.job_details = None
+        self.job_id = None
 
 # ============================================================================ #
 
@@ -195,62 +208,121 @@ class BigQueryLoader:
 
     @property
     def filename(self) -> str:
-        return DataHelper.force_extension(self.table_id, 'csv')
+        return self._filename
+    
+    @filename.setter
+    def filename(self, val) -> None:
+        val = DataHelper.force_extension(self.table_id, 'csv')
+        self._filename = val
+        
 
     @property
     def gcp_dir(self) -> str:
-        return osPath.join(self.GCP_BUCKET, self.data_source)
+        return self._gcp_dir
+    
+    @gcp_dir.setter
+    def gcp_dir(self, val) -> None:
+        val = osPath.join(self.GCP_BUCKET, self.data_source)
+        self._gcp_dir = val
+    
     
     @property
     def gcp_filepath(self) -> str:
-        return osPath.join(self.gcp_dir, self.filename)
+        return self._gcp_filepath
+    
+    @gcp_filepath.setter
+    def gcp_filepath(self, val) -> None:
+        val = osPath.join(self.gcp_dir, self.filename)
+        self._gcp_filepath = val
+        
     
     @property
     def job_id_prefix(self) -> str:
+        return self._job_id_prefix
+    
+    @job_id_prefix.setter
+    def job_id_prefix(self, val) -> None:
         _source = DataHelper.snek_to_camel(self.data_source)
         _table = DataHelper.snek_to_camel(self.table_id)
         _timestamp = DataHelper.get_epoch_timestamp()        
-        return f'{_source}_{_table}_{_timestamp()}_'
-
+        val = f'{_source}_{_table}_{_timestamp()}_'
+        self._job_id_prefix = val
+    
+    
     @property
     def destination(self) -> str:
-        return f'{self.GCP_PROJECT}.{self.data_source}.{self.table_id}'
+        return self._destination
+
+    @destination.setter
+    def destination(self, val) -> None:
+        val = f'{self.GCP_PROJECT}.{self.data_source}.{self.table_id}'
+        self._destination = val
+    
     
     @property
     def schema(self) -> dict:
-        return DataHelper.get_json(folder=osPath.join(self.SCHEMA_DIR, self.data_source),
-                                   filename=self.filename)
+        return self._schema
+        
+    @schema.setter
+    def schema(self, val) -> None:
+        val = DataHelper.get_json(folder=osPath.join(self.SCHEMA_DIR, self.data_source),
+                                  filename=self.filename)
+        self._schema = val
+    
     
     @property
     def job_config(self):
-        return gcpBigQuery.job.LoadJobConfig(allow_jagged_rows=self.allow_jagged_rows,
-                                             allow_quoted_newlines=self.allow_quoted_newlines,
-                                             autodetect=self.autodetect,
-                                             create_disposition=self.create_disposition,
-                                             field_delimiter=self.field_delimiter,
-                                             ignore_unknown_values=self.ignore_unknown_values,
-                                             max_bad_records=self.max_bad_records,
-                                             quote_character=self.quote_character,
-                                             skip_leading_rows=self.skip_leading_rows,
-                                             write_disposition=self.write_disposition,
-                                             schema=self.schema)
+        return self._job_config
+        
+    @job_config.setter
+    def job_config(self, val) -> None:
+        val = gcpBigQuery.job.LoadJobConfig(allow_jagged_rows=self.allow_jagged_rows,
+                                            allow_quoted_newlines=self.allow_quoted_newlines,
+                                            autodetect=self.autodetect,
+                                            create_disposition=self.create_disposition,
+                                            field_delimiter=self.field_delimiter,
+                                            ignore_unknown_values=self.ignore_unknown_values,
+                                            max_bad_records=self.max_bad_records,
+                                            quote_character=self.quote_character,
+                                            skip_leading_rows=self.skip_leading_rows,
+                                            write_disposition=self.write_disposition,
+                                            schema=self.schema)
+        self._job_config = val
+    
     
     @property
     def job_result(self):
+        return self._job_result
+        
+    @job_result.setter
+    def job_result(self, val) -> None:
         _job = gcpBigQuery.Client().load_table_from_uri(source_uris=self.gcp_filepath,
                                                         destination=self.destination,
                                                         job_id_prefix=self.job_id_prefix,
                                                         job_config=self.job_config,
                                                         timeout=300.0)
-        return _job.result()
+        val = _job.result()
+        self._job_result = val
+    
     
     @property
     def job_details(self):
-        return self.job_result.to_api_repr()
+        return self._job_details
+        
+    @job_details.setter
+    def job_details(self, val) -> None:
+        val = self.job_result.to_api_repr()
+        self._job_details = val
+    
     
     @property
     def job_id(self):
-        return self.job_result.job_id
+        return self._job_id
+        
+    @job_id.setter
+    def job_id(self, val) -> None:
+        val = self.job_result.job_id
+        self._job_id = val
 
 # ============================================================================ #
 

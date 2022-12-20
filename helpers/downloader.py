@@ -2,16 +2,17 @@ import os.path as osPath
 import requests
 
 from pathlib import Path as libPath
+from icecream import ic
 
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
 
+BREAK = '\n\n------------------------------------------------'
+
 # ============================================================================ #
 
 class Downloader:
-    
-    ROOT_DIR = EnvHelper.get_root_dir()
-    
+
     def __init__(self,
                  data_source: str,
                  url: str,
@@ -24,7 +25,43 @@ class Downloader:
         self.save_dir = save_dir
         self.filename = filename
         self.ignore_errors = ignore_errors
+        self.response = None
+        self.content = None
+        
+# ============================================================================ #
 
+    @staticmethod
+    def check_response_status(response: requests.Response, ignore_errors: bool = False) -> bool:
+        status_code = response.status_code
+        response_text = response.text
+        if status_code != 200:
+            if ignore_errors:
+                print(f'Unable to download content from {response.url}\n.'
+                      f'Request failed with status code: {status_code}\n')
+                return False
+            else:
+                raise RuntimeError(f'Request failed with status code {status_code}...\n'
+                                   f'Response text: {response_text}\n')
+        elif status_code == 200:
+            return True
+        else:
+            raise RuntimeError(f'API request failed for some other reason...\n'
+                               f'Response text: {response_text}\n')
+    
+    
+    @staticmethod
+    def save_response_content(content: bytes, save_dir: str, filename: str):
+        dir = osPath.join(EnvHelper.get_root_dir(), save_dir)
+        if not libPath(dir).is_dir():
+            raise RuntimeError(f'Invalid save directory: {dir}.')
+        filepath = osPath.join(dir, filename)
+        with open(filepath, 'w') as f:
+            f.write(str(content))
+        if libPath(filepath).is_file():
+            print(f'{filename} downloaded to ~/{save_dir}')
+        else:
+            print(f'{filepath} does not exist...')
+            
 # ============================================================================ #
 
     @property
@@ -33,10 +70,10 @@ class Downloader:
 
     @data_source.setter
     def data_source(self, val) -> None:
-        if val not in self.valid_data_sources:
+        if val not in DataHelper.get_data_sources():
             raise ValueError(f'Invalid data source: {val}')
         self._data_source = val
-        
+
 
     @property
     def url(self) -> str:
@@ -80,59 +117,55 @@ class Downloader:
 # ============================================================================ #
 
     @property
-    def save_filepath(self) -> str:
-        _dir = osPath.join(self.ROOT_DIR, self.save_dir)
-        if not libPath(_dir).is_dir():
-            raise RuntimeError(f'Invalid save directory: {_dir}.')
-        return osPath.join(_dir, self.filename)
-
-    @property
-    def valid_data_sources(self) -> dict:
-        return DataHelper.get_data_sources()
-
-    @property
-    def payload(self) -> requests.Response:
-        return requests.get(self.url)
-    
-    @property
-    def payload_content(self) -> bytes:
-        return self.payload.content
-    
-    @property
-    def status_code(self) -> int:
-        return self.payload.status_code
-
-
-# ============================================================================ #\
-
-    @classmethod
-    def doot(cls,
-             data_source: str,
-             url: str,
-             save_dir: str = None,
-             filename: str = None,
-             ignore_errors: bool = False) -> None:
-    
-        met = cls(data_source, url, save_dir, filename, ignore_errors)
-    
-        if met.status_code != 200:
-            if met.ignore_errors:
-                print(f'Unable to download {met.filename} from {met.url}.' 
-                      f'Request failed with status code: {met.status_code}')
-            else:
-                raise RuntimeError(f'Request failed with status code {met.status_code}...\n'
-                                   f'Response text: {met.payload.text}.')
-        else:
-            with open(met.save_filepath, 'wb') as file:
-                file.write(met.payload_content)
+    def response(self) -> requests.Response:
+        return self._response
         
-        if libPath(met.save_filepath).is_file():
-            print(f'{met.filename} downloaded to ~/{met.save_dir}.')
-        elif not met.ignore_errors:
-            raise FileNotFoundError(f'{met.save_filepath} does not exist..')
-                
+    @response.setter
+    def response(self, val) -> None:
+        val = requests.get(self.url)
+        self._response = val
+    
+    
+    @property
+    def content(self) -> bytes:
+        return self._content
+    
+    @content.setter
+    def content(self, val) -> None:
+        val = self.response.content
+        self._content = val
 
 # ============================================================================ #
 
+    @classmethod
+    def download(cls,
+                 data_source: str,
+                 url: str,
+                 save_dir: str = None,
+                 filename: str = None,
+                 ignore_errors: bool = False) -> None:
+    
+        doot = cls(data_source, url, save_dir, filename, ignore_errors)
+        
+        if doot.check_response_status(doot.response):
+            doot.save_response_content(doot.content, doot.save_dir, doot.filename)
+                
+# ============================================================================ #
+
 if __name__ == '__main__':
-    print('\n\n------------------------------------------------')
+    print(f'{BREAK} Executing as standalone script...')
+
+    data_source = 'baseball_databank'
+    url = 'https://raw.githubusercontent.com/chadwickbureau/baseballdatabank/master/core/AllstarFull.csv'
+    
+    Downloader.download(data_source, url)
+    
+    # tst = Downloader(data_source, url)
+    # ic(tst.VALID_DATA_SOURCES)
+    # ic(tst.data_source)
+    # ic(tst.url)
+    # ic(tst.save_dir)
+    # ic(tst.filename)
+    # ic(tst.ignore_errors)
+    # ic(tst.response)
+    # ic(tst.content)

@@ -1,38 +1,113 @@
-{
-    "fileType": {
-        "contrib": [
-            "AwardsManagers",
-            "AwardsPlayers",
-            "AwardsShareManagers",
-            "AwardsSharePlayers",
-            "CollegePlaying",
-            "HallOfFame",
-            "Salaries",
-            "Schools"
-        ],
-        "core": [
-            "AllstarFull",
-            "Appearances",
-            "Batting",
-            "BattingPost",
-            "Fielding",
-            "FieldingOF",
-            "FieldingOFsplit",
-            "FieldingPost",
-            "HomeGames",
-            "Managers",
-            "ManagersHalf",
-            "Parks",
-            "People",
-            "Pitching",
-            "PitchingPost",
-            "SeriesPost",
-            "Teams",
-            "TeamsFranchises",
-            "TeamsHalf"
-        ],
-        "upstream": [
-            "Teams"
+[
+    {
+        "fileName": "AllstarFull",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Appearances",
+        "fileType": "core"
+    },
+    {
+        "fileName": "AwardsManagers",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "AwardsPlayers",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "AwardsShareManagers",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "AwardsSharePlayers",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "Batting",
+        "fileType": "core"
+    },
+    {
+        "fileName": "BattingPost",
+        "fileType": "core"
+    },
+    {
+        "fileName": "CollegePlaying",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "Fielding",
+        "fileType": "core"
+    },
+    {
+        "fileName": "FieldingOF",
+        "fileType": "core"
+    },
+    {
+        "fileName": "FieldingOFsplit",
+        "fileType": "core"
+    },
+    {
+        "fileName": "FieldingPost",
+        "fileType": "core"
+    },
+    {
+        "fileName": "HallOfFame",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "HomeGames",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Managers",
+        "fileType": "core"
+    },
+    {
+        "fileName": "ManagersHalf",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Parks",
+        "fileType": "core"
+    },
+    {
+        "fileName": "People",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Pitching",
+        "fileType": "core"
+    },
+    {
+        "fileName": "PitchingPost",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Salaries",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "Schools",
+        "fileType": "contrib"
+    },
+    {
+        "fileName": "SeriesPost",
+        "fileType": "core"
+    },
+    {
+        "fileName": "Teams",
+        "fileType": [
+            "core",
+            "upstream"
         ]
+    },
+    {
+        "fileName": "TeamsFranchises",
+        "fileType": "core"
+    },
+    {
+        "fileName": "TeamsHalf",
+        "fileType": "core"
     }
-}
+]
