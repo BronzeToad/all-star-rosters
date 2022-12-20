@@ -62,7 +62,7 @@ def get_epoch_timestamp(date_string: str = None, fuzzy: bool = False) -> str:
 
 
 def snek_to_camel(snek_string: str) -> str:
-    return strCapwords(snek_string.replace('_', ' ')).replace(' ', '')
+    return strCapwords(snek_string.replace('_', ' ')).replace(' ', '')    
 
 
 def get_csv(filename: str, relative_path: str = 'data'):

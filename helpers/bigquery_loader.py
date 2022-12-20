@@ -1,12 +1,15 @@
 import google.cloud.bigquery as gcpBigQuery
 import os.path as osPath
 
-from string import capwords as strCapwords
+from google.cloud.bigquery.client import Client as bqClient
+from icecream import ic
 
 import helpers.data_utils as DataHelper
 import helpers.env_utils as EnvHelper
+from helpers.case_wizard import CaseWizard
 
-from icecream import ic
+
+BREAK = '\n\n------------------------------------------------'
 
 # ============================================================================ #
 
@@ -16,6 +19,8 @@ class BigQueryLoader:
     SCHEMA_DIR = osPath.join(ROOT_DIR, 'configs', 'bigquery_schemas')
     GCP_PROJECT = EnvHelper.get_gcp_project()
     GCP_BUCKET = EnvHelper.get_gcp_bucket()
+    DEFAULT_JOB_CONFIG = DataHelper.get_json(folder=osPath.join(ROOT_DIR, 'configs'),
+                                                filename='bigquery_defaults')
     
     def __init__(self,
                  data_source: str,
@@ -24,27 +29,21 @@ class BigQueryLoader:
         
         self.data_source = data_source
         self.table_id = table_id
-        
-        default_params = DataHelper.get_json(folder=osPath.join(self.ROOT_DIR, 'configs'),
-                                             filename='bigquery_defaults')
-        
-        default_params.update(kwargs)
-        
-        self.allow_jagged_rows = default_params['allow_jagged_rows']
-        self.allow_quoted_newlines = default_params['allow_quoted_newlines']
-        self.autodetect = default_params['autodetect']
-        self.create_disposition = default_params['create_disposition']
-        self.field_delimiter = default_params['field_delimiter']
-        self.ignore_unknown_values = default_params['ignore_unknown_values']
-        self.labels = default_params['labels']
-        self.max_bad_records = default_params['max_bad_records']
-        self.null_marker = default_params['null_marker']
-        self.quote_character = default_params['quote_character']
-        self.schema_file = default_params['schema_file']
-        self.skip_leading_rows = default_params['skip_leading_rows']
-        self.source_format = default_params['source_format']
-        self.write_disposition = default_params['write_disposition']
-        
+        self.DEFAULT_JOB_CONFIG.update(kwargs)
+        self.allow_jagged_rows = self.DEFAULT_JOB_CONFIG['allow_jagged_rows']
+        self.allow_quoted_newlines = self.DEFAULT_JOB_CONFIG['allow_quoted_newlines']
+        self.autodetect = self.DEFAULT_JOB_CONFIG['autodetect']
+        self.create_disposition = self.DEFAULT_JOB_CONFIG['create_disposition']
+        self.field_delimiter = self.DEFAULT_JOB_CONFIG['field_delimiter']
+        self.ignore_unknown_values = self.DEFAULT_JOB_CONFIG['ignore_unknown_values']
+        self.labels = self.DEFAULT_JOB_CONFIG['labels']
+        self.max_bad_records = self.DEFAULT_JOB_CONFIG['max_bad_records']
+        self.null_marker = self.DEFAULT_JOB_CONFIG['null_marker']
+        self.quote_character = self.DEFAULT_JOB_CONFIG['quote_character']
+        self.schema_file = self.DEFAULT_JOB_CONFIG['schema_file']
+        self.skip_leading_rows = self.DEFAULT_JOB_CONFIG['skip_leading_rows']
+        self.source_format = self.DEFAULT_JOB_CONFIG['source_format']
+        self.write_disposition = self.DEFAULT_JOB_CONFIG['write_disposition']
         self.filename = None
         self.gcp_dir = None
         self.gcp_filepath = None
@@ -55,6 +54,65 @@ class BigQueryLoader:
         self.job_result = None
         self.job_details = None
         self.job_id = None
+        
+# ============================================================================ #
+    
+    @staticmethod
+    def count_rows(destination: str) -> int:
+        """Counts number of records in BigQuery table.
+        Parameters
+        ----------
+        destination : str
+            BigQuery table destination. -> _project_._dataset_._table_
+        Returns
+        -------
+        count : int
+            Count of records.
+        """
+        table = bqClient().get_table(destination)
+        count = 0 if table.num_rows is None else table.num_rows
+        return count
+    
+    @staticmethod
+    def job_exists(job_id: str) -> bool:
+        """Checks if BigQuery job exists in GCP.
+        Parameters
+        ----------
+        job_id : str
+            BigQuery job id.
+        Returns
+        -------
+        job.exists : bool
+            True if job exists, else False.
+        """
+        job = bqClient().get_job(job_id)
+        return job.exists
+            
+    @staticmethod
+    def check_job_status(job_id: str, destination: str, qry_type: str, out_lvl: str) -> None:
+        """Checks status of Bigquery job.
+        Parameters
+        ----------
+        job_id : str
+            BigQuery job id.
+        destination : str
+            BigQuery table destination. -> _project_._dataset_._table_
+        qry_type : str
+            Type of Reporting Engine query.
+        out_lvl : str
+            Subtype of Reporting Engine query.
+        Raises
+        ------
+        RuntimeError
+            If BigQuery job does not exist.
+        """
+        if BigQueryLoader.job_exists(job_id):
+            rows = BigQueryLoader.count_rows(destination)
+            print(f'\nData for {qry_type}-{out_lvl} loaded successfully to BigQuery.')
+            print(f'{destination} contains {rows} records after data load.')
+        else:
+            raise RuntimeError(f'Job {job_id} does not exist...')
+
 
 # ============================================================================ #
 
@@ -78,87 +136,6 @@ class BigQueryLoader:
         self._table_id = val
 
 # ============================================================================ #
-
-    @property
-    def allow_jagged_rows(self) -> str:
-        return self._allow_jagged_rows
-    
-    @allow_jagged_rows.setter
-    def allow_jagged_rows(self, val: str) -> None:
-        self._allow_jagged_rows = val
-        
-    
-    @property
-    def allow_quoted_newlines(self) -> str:
-        return self._allow_quoted_newlines
-    
-    @allow_quoted_newlines.setter
-    def allow_quoted_newlines(self, val: str) -> None:
-        self._allow_quoted_newlines = val
-        
-    
-    @property
-    def autodetect(self) -> str:
-        return self._autodetect
-    
-    @autodetect.setter
-    def autodetect(self, val: str) -> None:
-        self._autodetect = val
-        
-    
-    @property
-    def create_disposition(self) -> str:
-        return self._create_disposition
-    
-    @create_disposition.setter
-    def create_disposition(self, val: str) -> None:
-        self._create_disposition = val
-    
-    
-    @property
-    def field_delimiter(self) -> str:
-        return self._field_delimiter
-    
-    @field_delimiter.setter
-    def field_delimiter(self, val: str) -> None:
-        self._field_delimiter = val
-    
-    
-    @property
-    def ignore_unknown_values(self) -> str:
-        return self._ignore_unknown_values
-    
-    @ignore_unknown_values.setter
-    def ignore_unknown_values(self, val: str) -> None:
-        self._ignore_unknown_values = val
-        
-        
-    @property
-    def labels(self) -> str:
-        return self._labels
-    
-    @labels.setter
-    def labels(self, val: str) -> None:
-        self._labels = val
-        
-    
-    @property
-    def max_bad_records(self) -> str:
-        return self._max_bad_records
-    
-    @max_bad_records.setter
-    def max_bad_records(self, val: str) -> None:
-        self._max_bad_records = val
-        
-        
-    @property
-    def null_marker(self) -> str:
-        return self._null_marker
-    
-    @null_marker.setter
-    def null_marker(self, val: str) -> None:
-        self._null_marker = val
-        
     
     @property
     def quote_character(self) -> str:
@@ -166,46 +143,21 @@ class BigQueryLoader:
     
     @quote_character.setter
     def quote_character(self, val: str) -> None:
+        if val is None:
+            val = "" if self.DEFAULT_JOB_CONFIG['field_delimiter'] == '|' else None
         self._quote_character = val
         
         
     @property
-    def schema_file(self) -> str:
-        return self._schema_file
+    def schema_filepath(self) -> str:
+        return self._schema_filepath
     
-    @schema_file.setter
-    def schema_file(self, val: str) -> None:
-        self._schema_file = val
-        
-    
-    @property
-    def skip_leading_rows(self) -> str:
-        return self._skip_leading_rows
-    
-    @skip_leading_rows.setter
-    def skip_leading_rows(self, val: str) -> None:
-        self._skip_leading_rows = val
+    @schema_filepath.setter
+    def schema_filepath(self, val: str) -> None:
+        val = osPath.join(self.SCHEMA_DIR, self.data_source)
+        self._schema_filepath = val
         
         
-    @property
-    def source_format(self) -> str:
-        return self._source_format
-    
-    @source_format.setter
-    def source_format(self, val: str) -> None:
-        self._source_format = val
-    
-    
-    @property
-    def write_disposition(self) -> str:
-        return self._write_disposition
-    
-    @write_disposition.setter
-    def write_disposition(self, val: str) -> None:
-        self._write_disposition = val
-
-# ============================================================================ #
-
     @property
     def filename(self) -> str:
         return self._filename
@@ -242,8 +194,8 @@ class BigQueryLoader:
     
     @job_id_prefix.setter
     def job_id_prefix(self, val) -> None:
-        _source = DataHelper.snek_to_camel(self.data_source)
-        _table = DataHelper.snek_to_camel(self.table_id)
+        _source = CaseWizard.convert(self.data_source, from_case='snake_case', to_case='PascalCase')
+        _table = CaseWizard.convert(self.table_id, from_case='snake_case', to_case='PascalCase')
         _timestamp = DataHelper.get_epoch_timestamp()        
         val = f'{_source}_{_table}_{_timestamp()}_'
         self._job_id_prefix = val
@@ -265,7 +217,7 @@ class BigQueryLoader:
         
     @schema.setter
     def schema(self, val) -> None:
-        val = DataHelper.get_json(folder=osPath.join(self.SCHEMA_DIR, self.data_source),
+        val = DataHelper.get_json(folder=self.schema_filepath,
                                   filename=self.filename)
         self._schema = val
     
@@ -276,17 +228,18 @@ class BigQueryLoader:
         
     @job_config.setter
     def job_config(self, val) -> None:
-        val = gcpBigQuery.job.LoadJobConfig(allow_jagged_rows=self.allow_jagged_rows,
-                                            allow_quoted_newlines=self.allow_quoted_newlines,
-                                            autodetect=self.autodetect,
-                                            create_disposition=self.create_disposition,
-                                            field_delimiter=self.field_delimiter,
-                                            ignore_unknown_values=self.ignore_unknown_values,
-                                            max_bad_records=self.max_bad_records,
-                                            quote_character=self.quote_character,
-                                            skip_leading_rows=self.skip_leading_rows,
-                                            write_disposition=self.write_disposition,
-                                            schema=self.schema)
+        val = gcpBigQuery.job.LoadJobConfig(allow_jagged_rows=self.DEFAULT_JOB_CONFIG['allow_jagged_rows'],
+                                            allow_quoted_newlines=self.DEFAULT_JOB_CONFIG['allow_quoted_newlines'],
+                                            autodetect=self.DEFAULT_JOB_CONFIG['autodetect'],
+                                            create_disposition=self.DEFAULT_JOB_CONFIG['create_disposition'],
+                                            field_delimiter=self.DEFAULT_JOB_CONFIG['field_delimiter'],
+                                            ignore_unknown_values=self.DEFAULT_JOB_CONFIG['ignore_unknown_values'],
+                                            max_bad_records=self.DEFAULT_JOB_CONFIG['max_bad_records'],
+                                            quote_character=self.DEFAULT_JOB_CONFIG['quote_character'],
+                                            skip_leading_rows=self.DEFAULT_JOB_CONFIG['skip_leading_rows'],
+                                            write_disposition=self.DEFAULT_JOB_CONFIG['write_disposition'])
+        val.quote_character = self.quote_character
+        val.schema = self.schema
         self._job_config = val
     
     
@@ -333,5 +286,5 @@ class BigQueryLoader:
 # ============================================================================ #
 
 if __name__ == '__main__':
-    print('\n\n------------------------------------------------')
+    print(f'{BREAK} Executing as standalone script...')
     
