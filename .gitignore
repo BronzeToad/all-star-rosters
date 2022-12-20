@@ -1,5 +1,7 @@
-################################################################################
-## Template .gitignore for python projects
+data/baseball_databank/downloads*
+_scratch/
+
+# ============================================================================ #
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -133,9 +135,3 @@ dmypy.json
 # Other stuff
 *.DS_Store
 _junk/
-
-################################################################################
-## dyersville .gitignore
-
-data/baseball_databank/downloads*
-_scratch/
